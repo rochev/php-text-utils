@@ -1,0 +1,29 @@
+{
+  "name": "rochev/text-utils",
+  "type": "library",
+  "description": "Random text utils",
+  "keywords": [
+    "php",
+    "text",
+    "string",
+    "utils"
+  ],
+  "authors": [
+    {
+      "name": "Vladimir Rochev",
+      "email": "vladimir@rochev.me"
+    }
+  ],
+  "require": {
+    "php": "^7.3",
+    "ext-mbstring": "*"
+  },
+  "require-dev": {
+  },
+  "autoload": {
+    "psr-4": {
+      "Rochev\\TextUtils\\": "src/"
+    }
+  },
+  "scripts": {}
+}
