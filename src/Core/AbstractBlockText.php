@@ -1,70 +1,56 @@
 <?php
 
-namespace Rochev\TextUtils;
+namespace Rochev\TextUtils\Core;
+
+use Rochev\TextUtils\Enums\Align;
+use Rochev\TextUtils\Enums\Chars;
 
 /**
  * Class BlockText
  */
-class BlockText implements IBlockText
+abstract class AbstractBlockText implements IBlockText
 {
     /**
      * @inheritDoc
      */
-    public static function build(string $text, int $align = self::ALIGN_CENTER): string
+    public static function build(string $text, int $align = Align::ALIGN_CENTER): string
     {
-        $block = new self($text, $align, false);
+        $a = new static($text, $align);
 
-        return $block->process();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function buildBig(string $text, int $align = self::ALIGN_CENTER): string
-    {
-        $block = new self($text, $align, true);
-
-        return $block->process();
+        return $a->localBuild();
     }
 
     /**
      * @var string[]
      */
-    private $lines;
+    protected $lines;
 
     /**
      * @var int
      */
-    private $align;
-
-    /**
-     * @var bool
-     */
-    private $is_big;
+    protected $align;
 
     /**
      * @var int
      */
-    private $max_length = 0;
+    protected $max_length = 0;
 
     /**
      * BlockText constructor.
      *
      * @param string $text
      * @param int $align Text alignment (use IBlockText align constants)
-     * @param bool $is_big
      */
-    private function __construct(string $text, int $align, bool $is_big)
+    protected function __construct(string $text, int $align)
     {
         $this->lines = explode(PHP_EOL, $text);
         $this->align = $align;
-        $this->is_big = $is_big;
     }
 
     /**
      * @return string
      */
-    private function process(): string
+    private function localBuild(): string
     {
         foreach ($this->lines as $line)
             $this->max_length = max($this->max_length, mb_strlen($line));
@@ -102,7 +88,7 @@ class BlockText implements IBlockText
             + $this->getHorizontalGapWidth()
             + $this->getHorizontalBorderWidth();
 
-        return str_repeat(self::BORDER_CHAR, $length);
+        return str_repeat(Chars::BORDER_CHAR, $length);
     }
 
     /**
@@ -114,9 +100,9 @@ class BlockText implements IBlockText
             + $this->max_length
             + $this->getHorizontalGapWidth();
 
-        return str_repeat(self::BORDER_CHAR, $this->getHorizontalBorderWidth())
-            . str_repeat(self::SPACE_CHAR, $space_length)
-            . str_repeat(self::BORDER_CHAR, $this->getHorizontalBorderWidth());
+        return str_repeat(Chars::BORDER_CHAR, $this->getHorizontalBorderWidth())
+            . str_repeat(Chars::SPACE_CHAR, $space_length)
+            . str_repeat(Chars::BORDER_CHAR, $this->getHorizontalBorderWidth());
     }
 
     /**
@@ -126,42 +112,30 @@ class BlockText implements IBlockText
      */
     private function textLine(string $line): string
     {
-        return str_repeat(self::BORDER_CHAR, $this->getHorizontalBorderWidth())
-            . str_repeat(self::SPACE_CHAR, $this->getHorizontalGapWidth())
-            . str_pad($line, $this->max_length, self::SPACE_CHAR, $this->align)
-            . str_repeat(self::SPACE_CHAR, $this->getHorizontalGapWidth())
-            . str_repeat(self::BORDER_CHAR, $this->getHorizontalBorderWidth());
+        return str_repeat(Chars::BORDER_CHAR, $this->getHorizontalBorderWidth())
+            . str_repeat(Chars::SPACE_CHAR, $this->getHorizontalGapWidth())
+            . str_pad($line, $this->max_length, Chars::SPACE_CHAR, $this->align)
+            . str_repeat(Chars::SPACE_CHAR, $this->getHorizontalGapWidth())
+            . str_repeat(Chars::BORDER_CHAR, $this->getHorizontalBorderWidth());
     }
 
     /**
      * @return int
      */
-    private function getVerticalGapWidth(): int
-    {
-        return $this->is_big ? 1 : 0;
-    }
+    protected abstract function getVerticalBorderWidth(): int;
 
     /**
      * @return int
      */
-    private function getVerticalBorderWidth(): int
-    {
-        return $this->is_big ? 2 : 1;
-    }
+    protected abstract function getHorizontalBorderWidth(): int;
 
     /**
      * @return int
      */
-    private function getHorizontalGapWidth(): int
-    {
-        return $this->is_big ? 6 : 3;
-    }
+    protected abstract function getVerticalGapWidth(): int;
 
     /**
      * @return int
      */
-    private function getHorizontalBorderWidth(): int
-    {
-        return $this->is_big ? 4 : 2;
-    }
+    protected abstract function getHorizontalGapWidth(): int;
 }
